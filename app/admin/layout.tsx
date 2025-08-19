@@ -1,18 +1,28 @@
 "use client"
 
-import { useSession } from "next-auth/react"
-import { redirect } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { ReactNode } from "react"
-import { AdminNav } from "@/components/admin/admin-nav"
 
 interface AdminLayoutProps {
   children: ReactNode
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { data: session, status } = useSession()
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+  const router = useRouter()
 
-  if (status === "loading") {
+  useEffect(() => {
+    // Check if user is authenticated (simple session storage check)
+    const isLoggedIn = sessionStorage.getItem('admin-authenticated') === 'true'
+    setIsAuthenticated(isLoggedIn)
+    
+    if (!isLoggedIn) {
+      router.push('/admin/login')
+    }
+  }, [router])
+
+  if (isAuthenticated === null) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="text-white">Loading...</div>
@@ -20,14 +30,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     )
   }
 
-  if (!session || session.user?.role !== "ADMIN") {
-    redirect("/admin/login")
+  if (!isAuthenticated) {
+    return null // Will redirect to login
   }
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <AdminNav />
-      <main className="pt-16">
+      <main>
         {children}
       </main>
     </div>

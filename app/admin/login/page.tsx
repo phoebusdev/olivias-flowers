@@ -17,6 +17,7 @@ export default function AdminLogin() {
     setError("")
 
     if (email === "olivias.flowers@gmail.com" && password === "Fl0w3r$$88") {
+      sessionStorage.setItem('admin-authenticated', 'true')
       router.push("/admin/dashboard")
     } else {
       setError("Invalid credentials. Use olivias.flowers@gmail.com / Fl0w3r$$88")
