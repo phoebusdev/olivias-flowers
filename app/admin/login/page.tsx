@@ -1,24 +1,28 @@
 "use client"
 
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Lock } from "lucide-react"
 
 export default function AdminLogin() {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const form = e.target as HTMLFormElement
-    const formData = new FormData(form)
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
+    setIsLoading(true)
+    setError("")
 
     if (email === "olivias.flowers@gmail.com" && password === "Fl0w3r$$88") {
-      window.location.href = "/admin/dashboard"
+      router.push("/admin/dashboard")
     } else {
-      const errorDiv = document.getElementById("error-message")
-      if (errorDiv) {
-        errorDiv.textContent = "Invalid credentials. Use olivias.flowers@gmail.com / Fl0w3r$$88"
-        errorDiv.style.display = "block"
-      }
+      setError("Invalid credentials. Use olivias.flowers@gmail.com / Fl0w3r$$88")
     }
+    
+    setIsLoading(false)
   }
 
   return (
@@ -37,7 +41,11 @@ export default function AdminLogin() {
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div id="error-message" className="hidden p-3 bg-red-900/50 border border-red-700 rounded-lg text-red-300 text-sm"></div>
+          {error && (
+            <div className="p-3 bg-red-900/50 border border-red-700 rounded-lg text-red-300 text-sm">
+              {error}
+            </div>
+          )}
           
           <div className="space-y-2">
             <label htmlFor="email" className="text-gray-300 text-sm font-medium">Email</label>
@@ -45,6 +53,8 @@ export default function AdminLogin() {
               id="email"
               name="email"
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full h-10 px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-md text-white placeholder:text-gray-400 focus:border-yellow-400 focus:outline-none"
               placeholder="olivias.flowers@gmail.com"
               required
@@ -57,6 +67,8 @@ export default function AdminLogin() {
               id="password"
               name="password"
               type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full h-10 px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-md text-white placeholder:text-gray-400 focus:border-yellow-400 focus:outline-none"
               placeholder="Enter your password"
               required
@@ -65,9 +77,10 @@ export default function AdminLogin() {
           
           <button
             type="submit"
-            className="w-full h-11 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-md transition-colors"
+            disabled={isLoading}
+            className="w-full h-11 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-md transition-colors disabled:opacity-50"
           >
-            Sign In
+            {isLoading ? "Signing in..." : "Sign In"}
           </button>
         </form>
         
