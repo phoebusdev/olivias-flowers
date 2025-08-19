@@ -150,9 +150,9 @@ npx prisma db push
 
 ## 🔐 Admin Access
 
-**Demo Credentials:**
-- Email: `admin@oliviasflowers.com`
-- Password: `admin123`
+**Admin Credentials:**
+- Email: `olivias.flowers@gmail.com`
+- Password: `Fl0w3r$$88`
 
 **Note**: Change these credentials in production by modifying the authentication logic in `/app/admin/login/page.tsx`.
 

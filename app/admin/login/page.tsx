@@ -10,12 +10,12 @@ export default function AdminLogin() {
     const email = formData.get("email") as string
     const password = formData.get("password") as string
 
-    if (email === "admin@oliviasflowers.com" && password === "admin123") {
+    if (email === "olivias.flowers@gmail.com" && password === "Fl0w3r$$88") {
       window.location.href = "/admin/dashboard"
     } else {
       const errorDiv = document.getElementById("error-message")
       if (errorDiv) {
-        errorDiv.textContent = "Invalid credentials. Use admin@oliviasflowers.com / admin123"
+        errorDiv.textContent = "Invalid credentials. Use olivias.flowers@gmail.com / Fl0w3r$$88"
         errorDiv.style.display = "block"
       }
     }
@@ -46,7 +46,7 @@ export default function AdminLogin() {
               name="email"
               type="email"
               className="w-full h-10 px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-md text-white placeholder:text-gray-400 focus:border-yellow-400 focus:outline-none"
-              placeholder="admin@oliviasflowers.com"
+              placeholder="olivias.flowers@gmail.com"
               required
             />
           </div>
@@ -72,7 +72,7 @@ export default function AdminLogin() {
         </form>
         
         <div className="mt-4 text-center text-sm text-gray-400">
-          Demo credentials: admin@oliviasflowers.com / admin123
+          Demo credentials: olivias.flowers@gmail.com / Fl0w3r$$88
         </div>
       </div>
     </div>
