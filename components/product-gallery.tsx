@@ -7,14 +7,26 @@ import { Button } from "@/components/ui/button"
 import { formatPrice } from "@/lib/utils"
 import { Filter, X } from "lucide-react"
 
-const categories = [
-  { id: "all", name: "Të Gjitha", slug: "all" },
-  { id: "wedding", name: "Dasma", slug: "wedding" },
-  { id: "birthday", name: "Ditëlindje", slug: "birthday" },
-  { id: "sympathy", name: "Ngushëllime", slug: "sympathy" },
-  { id: "romantic", name: "Romantike", slug: "romantic" },
-  { id: "seasonal", name: "Sezonale", slug: "seasonal" },
-]
+interface Product {
+  id: string
+  title: string
+  description: string
+  price: number
+  category: {
+    id: string
+    name: string
+    slug: string
+  }
+  images: string[]
+  slug: string
+  active: boolean
+}
+
+interface Category {
+  id: string
+  name: string
+  slug: string
+}
 
 const priceRanges = [
   { id: "all", label: "Të Gjitha", min: 0, max: Infinity },
@@ -23,74 +35,55 @@ const priceRanges = [
   { id: "premium", label: "Mbi 10,000 Lek", min: 10000, max: Infinity },
 ]
 
-const products = [
-  {
-    id: "1",
-    title: "Buqetë Elegante",
-    description: "Një kompozim i sofistikuar me trëndafila të bardhë dhe rozë",
-    price: 5000,
-    category: "romantic",
-    image: "/products/bouquet-1.jpg",
-    slug: "buqete-elegante",
-  },
-  {
-    id: "2",
-    title: "Aranzhman Dasme",
-    description: "Dekorim perfekt për ditën tuaj të veçantë",
-    price: 15000,
-    category: "wedding",
-    image: "/products/wedding-1.jpg",
-    slug: "aranzhman-dasme",
-  },
-  {
-    id: "3",
-    title: "Buqetë Ditëlindje",
-    description: "Ngjyra të gjalla për të festuar momentet e lumtura",
-    price: 3500,
-    category: "birthday",
-    image: "/products/birthday-1.jpg",
-    slug: "buqete-ditelindje",
-  },
-  {
-    id: "4",
-    title: "Orkide Luksoze",
-    description: "Orkide ekzotike për një dhuratë të paharrueshme",
-    price: 8000,
-    category: "romantic",
-    image: "/products/orchid-1.jpg",
-    slug: "orkide-luksoze",
-  },
-  {
-    id: "5",
-    title: "Kurorë Ngushëllimi",
-    description: "Respekt dhe nderim për momentet e vështira",
-    price: 12000,
-    category: "sympathy",
-    image: "/products/sympathy-1.jpg",
-    slug: "kurore-ngushellimi",
-  },
-  {
-    id: "6",
-    title: "Buqetë Pranverore",
-    description: "Lule të freskëta pranvere në ngjyra pastel",
-    price: 4500,
-    category: "seasonal",
-    image: "/products/spring-1.jpg",
-    slug: "buqete-pranverore",
-  },
-]
-
 export function ProductGallery() {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedPriceRange, setSelectedPriceRange] = useState("all")
-  const [filteredProducts, setFilteredProducts] = useState(products)
+  const [products, setProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [showFilters, setShowFilters] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadProducts()
+    loadCategories()
+  }, [])
+
+  const loadProducts = async () => {
+    try {
+      const response = await fetch('/api/products')
+      if (response.ok) {
+        const data = await response.json()
+        setProducts(data)
+        setFilteredProducts(data)
+      }
+    } catch (error) {
+      console.error('Error loading products:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadCategories = async () => {
+    try {
+      const response = await fetch('/api/categories')
+      if (response.ok) {
+        const data = await response.json()
+        setCategories([
+          { id: "all", name: "Të Gjitha", slug: "all" },
+          ...data
+        ])
+      }
+    } catch (error) {
+      console.error('Error loading categories:', error)
+    }
+  }
 
   useEffect(() => {
     let filtered = products
 
     if (selectedCategory !== "all") {
-      filtered = filtered.filter((p) => p.category === selectedCategory)
+      filtered = filtered.filter((p) => p.category.slug === selectedCategory)
     }
 
     if (selectedPriceRange !== "all") {
@@ -103,7 +96,7 @@ export function ProductGallery() {
     }
 
     setFilteredProducts(filtered)
-  }, [selectedCategory, selectedPriceRange])
+  }, [selectedCategory, selectedPriceRange, products])
 
   return (
     <section className="section">
@@ -137,9 +130,9 @@ export function ProductGallery() {
                 {categories.map((category) => (
                   <button
                     key={category.id}
-                    onClick={() => setSelectedCategory(category.id)}
+                    onClick={() => setSelectedCategory(category.slug)}
                     className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                      selectedCategory === category.id
+                      selectedCategory === category.slug
                         ? "bg-[#9d6b6b] text-white"
                         : "text-[#8b5a5a] hover:bg-[#faf8f8] hover:text-[#6b4444]"
                     }`}
@@ -171,7 +164,13 @@ export function ProductGallery() {
           </aside>
 
           <div className="flex-1">
-            {filteredProducts.length === 0 ? (
+            {loading ? (
+              <div className="text-center py-20">
+                <p className="text-[#8b5a5a] text-lg">
+                  Duke ngarkuar produktet...
+                </p>
+              </div>
+            ) : filteredProducts.length === 0 ? (
               <div className="text-center py-20">
                 <p className="text-[#8b5a5a] text-lg">
                   Nuk u gjetën produkte për këtë filtrim.
@@ -195,7 +194,15 @@ export function ProductGallery() {
                     className="product-card group"
                   >
                     <div className="product-image">
-                      <div className="text-6xl">🌸</div>
+                      {product.images && product.images.length > 0 ? (
+                        <img
+                          src={product.images[0]}
+                          alt={product.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="text-6xl">🌸</div>
+                      )}
                     </div>
                     <div className="product-content">
                       <h3 className="product-title">

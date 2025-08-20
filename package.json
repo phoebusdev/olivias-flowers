@@ -7,7 +7,11 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "seed": "tsx prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -41,6 +45,7 @@
     "react-intersection-observer": "^9.16.0",
     "sharp": "^0.34.3",
     "tailwind-merge": "^3.3.1",
+    "tsx": "^4.20.4",
     "zod": "^4.0.17"
   },
   "devDependencies": {
