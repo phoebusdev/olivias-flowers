@@ -48,7 +48,7 @@ const featuredProducts = [
 
 export function FeaturedProducts() {
   return (
-    <section className="section section-dark">
+    <section className="section">
       <div className="container">
         <div className="section-header">
           <h2 className="section-title">Produktet e Zgjedhura</h2>
@@ -80,7 +80,7 @@ export function FeaturedProducts() {
           ))}
         </div>
 
-        <div className="text-center mt-12">
+        <div className="text-center" style={{marginTop: '1.5rem'}}>
           <Link href="/products" className="btn btn-secondary btn-lg">
             Shiko të Gjitha Produktet
             <ArrowRight className="h-4 w-4" />

@@ -20,7 +20,7 @@ export function Hero() {
           Çdo krijim është një vepër arti unike, e krijuar me kujdes për të kapur momentet tuaja të veçanta. 
           Ne sjellim bukurinë e natyrës në jetën tuaj përmes kompozimeve të sofistikuara dhe dizajnit kreativ.
         </p>
-        <div className="hero-actions">
+        <div className="hero-actions mb-16">
           <Link href="/products" className="btn btn-primary btn-lg">
             Shiko Produktet
           </Link>
@@ -30,8 +30,8 @@ export function Hero() {
         </div>
       </div>
       
-      <div className="absolute bottom-8 left-center transform translate-x-center animate-bounce">
-        <ChevronDown className="h-8 w-8 text-white opacity-50" />
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+        <ChevronDown className="h-6 w-6 text-current opacity-30" />
       </div>
     </section>
   )

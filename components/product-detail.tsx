@@ -51,11 +51,11 @@ Link: ${window.location.href}`
 
   return (
     <>
-      <section className="py-12 bg-[#0a0a0a]">
+      <section className="section">
         <div className="container">
           <Link
             href="/products"
-            className="inline-flex items-center text-[#f5f5dc]/60 hover:text-[#d4af37] mb-8 transition-colors"
+            className="inline-flex items-center text-[#8b5a5a] hover:text-[#6b4444] mb-8 transition-colors"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
             Kthehu te Produktet
@@ -63,8 +63,8 @@ Link: ${window.location.href}`
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div className="space-y-4">
-              <div className="relative aspect-square bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] rounded-lg overflow-hidden flex items-center justify-center">
-                <div className="text-[#f5f5dc]/40 text-8xl">🌸</div>
+              <div className="product-image aspect-square">
+                <div className="text-8xl">🌸</div>
               </div>
 
               <div className="grid grid-cols-4 gap-2">
@@ -72,13 +72,13 @@ Link: ${window.location.href}`
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`aspect-square rounded-md overflow-hidden border-2 transition-colors bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] flex items-center justify-center ${
+                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors bg-gradient-to-br from-[#faf8f8] to-[#f5f0f0] flex items-center justify-center ${
                       currentImageIndex === index
-                        ? "border-[#d4af37]"
-                        : "border-transparent"
+                        ? "border-[#9d6b6b]"
+                        : "border-[#e8d5d5]"
                     }`}
                   >
-                    <div className="text-[#f5f5dc]/30 text-2xl">🌸</div>
+                    <div className="text-[#9d6b6b] text-2xl">🌸</div>
                   </button>
                 ))}
               </div>
@@ -86,32 +86,32 @@ Link: ${window.location.href}`
 
             <div className="space-y-6">
               <div>
-                <h1 className="text-4xl font-serif text-[#f5f5dc] mb-2">
+                <h1 className="text-4xl font-serif text-[#6b4444] mb-2">
                   {product.title}
                 </h1>
-                <p className="text-[#d4af37] text-sm">{product.category}</p>
+                <p className="text-[#9d6b6b] text-sm">{product.category}</p>
               </div>
 
-              <p className="text-[#f5f5dc]/80 text-lg leading-relaxed">
+              <p className="text-[#8b5a5a] text-lg leading-relaxed">
                 {product.description}
               </p>
 
-              <div className="text-3xl font-serif text-[#d4af37]">
+              <div className="text-3xl font-serif text-[#9d6b6b]">
                 {formatPrice(product.price)}
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[#f5f5dc] mb-2">Madhësia</label>
+                  <label className="block text-[#6b4444] mb-2 font-medium">Madhësia</label>
                   <div className="flex gap-2">
                     {product.sizes.map((size) => (
                       <button
                         key={size}
                         onClick={() => setSelectedSize(size)}
-                        className={`px-4 py-2 rounded-md border transition-colors ${
+                        className={`px-4 py-2 rounded-lg border transition-colors ${
                           selectedSize === size
-                            ? "bg-[#d4af37] text-[#0a0a0a] border-[#d4af37]"
-                            : "border-[#1a1a1a] text-[#f5f5dc] hover:border-[#d4af37]"
+                            ? "bg-[#9d6b6b] text-white border-[#9d6b6b]"
+                            : "border-[#e8d5d5] text-[#8b5a5a] hover:border-[#9d6b6b] hover:bg-[#faf8f8]"
                         }`}
                       >
                         {size}
@@ -121,16 +121,16 @@ Link: ${window.location.href}`
                 </div>
 
                 <div>
-                  <label className="block text-[#f5f5dc] mb-2">Ngjyra</label>
+                  <label className="block text-[#6b4444] mb-2 font-medium">Ngjyra</label>
                   <div className="flex gap-2">
                     {product.colors.map((color) => (
                       <button
                         key={color}
                         onClick={() => setSelectedColor(color)}
-                        className={`px-4 py-2 rounded-md border transition-colors ${
+                        className={`px-4 py-2 rounded-lg border transition-colors ${
                           selectedColor === color
-                            ? "bg-[#d4af37] text-[#0a0a0a] border-[#d4af37]"
-                            : "border-[#1a1a1a] text-[#f5f5dc] hover:border-[#d4af37]"
+                            ? "bg-[#9d6b6b] text-white border-[#9d6b6b]"
+                            : "border-[#e8d5d5] text-[#8b5a5a] hover:border-[#9d6b6b] hover:bg-[#faf8f8]"
                         }`}
                       >
                         {color}
@@ -141,42 +141,39 @@ Link: ${window.location.href}`
               </div>
 
               <div className="flex gap-4">
-                <Button
-                  size="lg"
-                  variant="default"
+                <button
                   onClick={() => setIsOrderModalOpen(true)}
-                  className="flex-1"
+                  className="btn btn-primary btn-lg flex-1"
                 >
                   Porosit Tani
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
+                </button>
+                <button
                   onClick={handleWhatsAppOrder}
+                  className="btn btn-secondary btn-lg"
                 >
                   <MessageCircle className="h-5 w-5" />
-                </Button>
+                </button>
               </div>
 
-              <div className="border-t border-[#1a1a1a] pt-6 space-y-4">
+              <div className="border-t border-[#e8d5d5] pt-6 space-y-4">
                 <div>
-                  <h3 className="text-[#f5f5dc] font-serif text-lg mb-2">
+                  <h3 className="text-[#6b4444] font-serif text-lg mb-2">
                     Kujdesi për Lulet
                   </h3>
-                  <p className="text-[#f5f5dc]/60 text-sm">
+                  <p className="text-[#8b5a5a] text-sm">
                     {product.careInstructions}
                   </p>
                 </div>
 
                 <div>
-                  <h3 className="text-[#f5f5dc] font-serif text-lg mb-2">
+                  <h3 className="text-[#6b4444] font-serif text-lg mb-2">
                     Raste të Përshtatshme
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {product.occasions.map((occasion) => (
                       <span
                         key={occasion}
-                        className="px-3 py-1 bg-[#1a1a1a] text-[#f5f5dc]/70 rounded-full text-sm"
+                        className="px-3 py-1 bg-[#faf8f8] text-[#8b5a5a] border border-[#e8d5d5] rounded-full text-sm"
                       >
                         {occasion}
                       </span>

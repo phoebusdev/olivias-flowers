@@ -1,370 +1,448 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { 
-  Package, 
-  ShoppingCart, 
-  Users, 
-  DollarSign,
-  Plus,
-  Eye,
-  Edit,
-  Trash2
-} from "lucide-react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+
+interface Order {
+  id: string
+  name: string
+  email: string
+  phone: string
+  message: string
+  date: string
+}
+
+interface Product {
+  id: string
+  name: string
+  price: number
+  category: string
+  image: string
+}
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState("overview")
+  const [activeTab, setActiveTab] = useState<"orders" | "products">("orders")
+  const [orders, setOrders] = useState<Order[]>([])
+  const [products, setProducts] = useState<Product[]>([])
   const [showAddProduct, setShowAddProduct] = useState(false)
+  const [newProduct, setNewProduct] = useState({ name: "", price: "", category: "", image: "" })
+  const [isDragging, setIsDragging] = useState(false)
+  const router = useRouter()
 
-  // Mock data
-  const stats = {
-    totalProducts: 24,
-    totalOrders: 156,
-    totalCustomers: 89,
-    totalRevenue: 1250000
-  }
-
-  const recentOrders = [
-    { id: "1", customer: "Ana Marku", total: 15000, status: "PENDING", date: "2024-01-15" },
-    { id: "2", customer: "Dritan Hoxha", total: 8500, status: "COMPLETED", date: "2024-01-14" },
-    { id: "3", customer: "Elona Demi", total: 12000, status: "PROCESSING", date: "2024-01-14" }
-  ]
-
-  const products = [
-    { id: "1", title: "Buqetë Elegante Premium", price: 5000, category: "Buqeta", status: "active" },
-    { id: "2", title: "Aranzhman Dasme Luksoze", price: 15000, category: "Dasma", status: "active" },
-    { id: "3", title: "Buqetë Ditëlindje Festive", price: 3500, category: "Buqeta", status: "active" }
-  ]
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('sq-AL', {
-      style: 'currency',
-      currency: 'ALL',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price)
-  }
-
-  const getStatusBadge = (status: string) => {
-    const statusStyles = {
-      PENDING: "bg-rose-200 text-rose-800 border border-rose-300",
-      PROCESSING: "bg-rose-300 text-rose-900 border border-rose-400", 
-      COMPLETED: "bg-green-200 text-green-800 border border-green-300",
-      CANCELLED: "bg-rose-400 text-rose-900 border border-rose-500",
-      active: "bg-green-200 text-green-800 border border-green-300",
-      inactive: "bg-rose-100 text-rose-700 border border-rose-200"
+  useEffect(() => {
+    const isAuth = localStorage.getItem("adminAuth")
+    if (isAuth !== "true") {
+      router.push("/admin")
     }
-    return statusStyles[status as keyof typeof statusStyles] || "bg-rose-100 text-rose-700 border border-rose-200"
+
+    // Load mock data
+    const mockOrders: Order[] = [
+      { id: "1", name: "Ana Marku", email: "ana@email.com", phone: "+355 69 123 4567", message: "Need wedding flowers for 50 guests", date: "2024-01-15" },
+      { id: "2", name: "Dritan Hoxha", email: "dritan@email.com", phone: "+355 68 234 5678", message: "Birthday bouquet needed", date: "2024-01-14" },
+      { id: "3", name: "Elona Demi", email: "elona@email.com", phone: "+355 69 345 6789", message: "Corporate event decoration", date: "2024-01-13" }
+    ]
+    
+    const mockProducts: Product[] = [
+      { id: "1", name: "Rose Bouquet", price: 5000, category: "Bouquets", image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23" },
+      { id: "2", name: "Wedding Arrangement", price: 15000, category: "Events", image: "https://images.unsplash.com/photo-1522057384400-681b421cfebc" },
+      { id: "3", name: "Birthday Special", price: 3500, category: "Bouquets", image: "https://images.unsplash.com/photo-1561181286-d3fee7d55364" },
+      { id: "4", name: "Orchid Plant", price: 8000, category: "Plants", image: "https://images.unsplash.com/photo-1612487439139-c2f2095c7b38" }
+    ]
+
+    setOrders(mockOrders)
+    setProducts(mockProducts)
+  }, [router])
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminAuth")
+    router.push("/admin")
+  }
+
+  const handleAddProduct = () => {
+    if (newProduct.name && newProduct.price && newProduct.category && newProduct.image) {
+      const product: Product = {
+        id: Date.now().toString(),
+        name: newProduct.name,
+        price: parseFloat(newProduct.price),
+        category: newProduct.category,
+        image: newProduct.image
+      }
+      setProducts([...products, product])
+      setNewProduct({ name: "", price: "", category: "", image: "" })
+      setShowAddProduct(false)
+    }
+  }
+
+  const handleDeleteProduct = (id: string) => {
+    setProducts(products.filter(p => p.id !== id))
+  }
+
+  const handleImageDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    
+    const file = e.dataTransfer.files[0]
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        setNewProduct({ ...newProduct, image: event.target?.result as string })
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        setNewProduct({ ...newProduct, image: event.target?.result as string })
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const styles = {
+    container: {
+      minHeight: "100vh",
+      backgroundColor: "#f5f5f5"
+    },
+    header: {
+      backgroundColor: "white",
+      borderBottom: "1px solid #ddd",
+      padding: "16px 24px",
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center"
+    },
+    title: {
+      fontSize: "20px",
+      fontWeight: "bold",
+      margin: 0
+    },
+    logoutBtn: {
+      padding: "8px 16px",
+      backgroundColor: "#666",
+      color: "white",
+      border: "none",
+      borderRadius: "4px",
+      cursor: "pointer",
+      fontSize: "14px"
+    },
+    nav: {
+      backgroundColor: "white",
+      borderBottom: "1px solid #ddd",
+      padding: "0 24px",
+      display: "flex",
+      gap: "24px"
+    },
+    navBtn: (active: boolean) => ({
+      padding: "16px 0",
+      backgroundColor: "transparent",
+      border: "none",
+      borderBottom: active ? "2px solid #333" : "2px solid transparent",
+      cursor: "pointer",
+      fontSize: "14px",
+      fontWeight: active ? "600" : "400"
+    }),
+    content: {
+      padding: "24px"
+    },
+    table: {
+      width: "100%",
+      backgroundColor: "white",
+      borderRadius: "8px",
+      overflow: "hidden",
+      boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+    },
+    th: {
+      textAlign: "left" as const,
+      padding: "12px",
+      backgroundColor: "#f8f8f8",
+      fontWeight: "600",
+      fontSize: "14px",
+      borderBottom: "1px solid #ddd"
+    },
+    td: {
+      padding: "12px",
+      fontSize: "14px",
+      borderBottom: "1px solid #eee"
+    },
+    addBtn: {
+      padding: "10px 20px",
+      backgroundColor: "#333",
+      color: "white",
+      border: "none",
+      borderRadius: "4px",
+      cursor: "pointer",
+      fontSize: "14px",
+      marginBottom: "20px"
+    },
+    deleteBtn: {
+      padding: "6px 12px",
+      backgroundColor: "#dc3545",
+      color: "white",
+      border: "none",
+      borderRadius: "4px",
+      cursor: "pointer",
+      fontSize: "12px"
+    },
+    modal: {
+      position: "fixed" as const,
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    },
+    modalContent: {
+      backgroundColor: "white",
+      padding: "24px",
+      borderRadius: "8px",
+      width: "100%",
+      maxWidth: "400px"
+    },
+    input: {
+      width: "100%",
+      padding: "8px",
+      border: "1px solid #ddd",
+      borderRadius: "4px",
+      fontSize: "14px",
+      marginBottom: "12px"
+    },
+    label: {
+      display: "block",
+      marginBottom: "4px",
+      fontSize: "14px",
+      fontWeight: "500"
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-rose-100">
-      {/* Header */}
-      <header className="bg-white bg-opacity-90 backdrop-blur-sm border-b border-rose-200 shadow-sm p-4 md:p-6">
-        <div className="container mx-auto">
-          <h1 className="text-xl md:text-3xl font-bold font-playfair text-rose-900 tracking-tight">Admin Dashboard</h1>
-          <p className="text-rose-700 mt-1 md:mt-2 text-sm md:text-base font-medium">Olivia's Flowers Management</p>
-        </div>
+    <div style={styles.container}>
+      <header style={styles.header}>
+        <h1 style={styles.title}>Admin Dashboard</h1>
+        <button onClick={handleLogout} style={styles.logoutBtn}>
+          Logout
+        </button>
       </header>
 
-      {/* Navigation Tabs */}
-      <nav className="bg-white bg-opacity-80 backdrop-blur-sm border-b border-rose-200">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="flex space-x-4 md:space-x-8 overflow-x-auto">
-            {[
-              { id: "overview", label: "Overview" },
-              { id: "products", label: "Products" },
-              { id: "orders", label: "Orders" },
-              { id: "customers", label: "Customers" }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-3 md:py-4 px-2 border-b-2 font-medium text-sm whitespace-nowrap transition-all duration-300 ${
-                  activeTab === tab.id
-                    ? "border-rose-500 text-rose-800"
-                    : "border-transparent text-rose-600 hover:text-rose-800 hover:border-rose-300"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
+      <nav style={styles.nav}>
+        <button
+          onClick={() => setActiveTab("orders")}
+          style={styles.navBtn(activeTab === "orders")}
+        >
+          Contact Form Orders
+        </button>
+        <button
+          onClick={() => setActiveTab("products")}
+          style={styles.navBtn(activeTab === "products")}
+        >
+          Products
+        </button>
       </nav>
 
-      {/* Main Content */}
-      <main className="container mx-auto p-4 md:p-6">
-        {activeTab === "overview" && (
-          <div className="space-y-6">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
-              <Card className="bg-white bg-opacity-80 backdrop-blur-sm border border-rose-200 shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all duration-300 hover:shadow-rose-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-rose-700">Total Products</CardTitle>
-                  <Package className="h-5 w-5 text-rose-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-rose-900 font-playfair">{stats.totalProducts}</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-white bg-opacity-80 backdrop-blur-sm border border-rose-200 shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all duration-300 hover:shadow-rose-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-rose-700">Total Orders</CardTitle>
-                  <ShoppingCart className="h-5 w-5 text-rose-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-rose-900 font-playfair">{stats.totalOrders}</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-white bg-opacity-80 backdrop-blur-sm border border-rose-200 shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all duration-300 hover:shadow-rose-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-rose-700">Total Customers</CardTitle>
-                  <Users className="h-5 w-5 text-rose-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-rose-900 font-playfair">{stats.totalCustomers}</div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-white bg-opacity-80 backdrop-blur-sm border border-rose-200 shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all duration-300 hover:shadow-rose-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-rose-700">Total Revenue</CardTitle>
-                  <DollarSign className="h-5 w-5 text-rose-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-rose-900 font-playfair">{formatPrice(stats.totalRevenue)}</div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Recent Orders */}
-            <Card className="bg-white bg-opacity-80 backdrop-blur-sm border border-rose-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:shadow-rose-200">
-              <CardHeader>
-                <CardTitle className="text-rose-900 font-playfair text-xl">Recent Orders</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {recentOrders.map((order) => (
-                    <div key={order.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-rose-50 to-white rounded-lg border border-rose-100 hover:shadow-md transition-all duration-300">
-                      <div>
-                        <p className="font-medium text-rose-900">{order.customer}</p>
-                        <p className="text-sm text-rose-600">{order.date}</p>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <span className="font-semibold text-rose-900 font-playfair">{formatPrice(order.total)}</span>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(order.status)}`}>
-                          {order.status}
-                        </span>
-                      </div>
-                    </div>
+      <div style={styles.content}>
+        {activeTab === "orders" && (
+          <div>
+            <h2 style={{ marginBottom: "20px" }}>Contact Form Submissions</h2>
+            <div style={styles.table}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>Date</th>
+                    <th style={styles.th}>Name</th>
+                    <th style={styles.th}>Email</th>
+                    <th style={styles.th}>Phone</th>
+                    <th style={styles.th}>Message</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.map(order => (
+                    <tr key={order.id}>
+                      <td style={styles.td}>{order.date}</td>
+                      <td style={styles.td}>{order.name}</td>
+                      <td style={styles.td}>{order.email}</td>
+                      <td style={styles.td}>{order.phone}</td>
+                      <td style={styles.td}>{order.message}</td>
+                    </tr>
                   ))}
-                </div>
-              </CardContent>
-            </Card>
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
         {activeTab === "products" && (
-          <div className="space-y-4 md:space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <h2 className="text-xl md:text-2xl font-bold text-rose-900 font-playfair">Products</h2>
-              <Button 
-                className="bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white w-full sm:w-auto shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
-                onClick={() => setShowAddProduct(true)}
+          <div>
+            <button onClick={() => setShowAddProduct(true)} style={styles.addBtn}>
+              Add Product
+            </button>
+            <div style={styles.table}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>Image</th>
+                    <th style={styles.th}>Name</th>
+                    <th style={styles.th}>Price (ALL)</th>
+                    <th style={styles.th}>Category</th>
+                    <th style={styles.th}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map(product => (
+                    <tr key={product.id}>
+                      <td style={styles.td}>
+                        <img 
+                          src={product.image} 
+                          alt={product.name}
+                          style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: "4px" }}
+                        />
+                      </td>
+                      <td style={styles.td}>{product.name}</td>
+                      <td style={styles.td}>{product.price.toLocaleString()}</td>
+                      <td style={styles.td}>{product.category}</td>
+                      <td style={styles.td}>
+                        <button
+                          onClick={() => handleDeleteProduct(product.id)}
+                          style={styles.deleteBtn}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {showAddProduct && (
+        <div style={styles.modal}>
+          <div style={styles.modalContent}>
+            <h2 style={{ marginBottom: "20px" }}>Add New Product</h2>
+            <div>
+              <label style={styles.label}>Product Name</label>
+              <input
+                type="text"
+                value={newProduct.name}
+                onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                style={styles.input}
+              />
+            </div>
+            <div>
+              <label style={styles.label}>Price (ALL)</label>
+              <input
+                type="number"
+                value={newProduct.price}
+                onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                style={styles.input}
+              />
+            </div>
+            <div>
+              <label style={styles.label}>Category</label>
+              <input
+                type="text"
+                value={newProduct.category}
+                onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                style={styles.input}
+              />
+            </div>
+            <div>
+              <label style={styles.label}>Product Image</label>
+              
+              {/* Drag and Drop Area */}
+              <div
+                onDrop={handleImageDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                style={{
+                  border: isDragging ? "2px dashed #333" : "2px dashed #ccc",
+                  borderRadius: "4px",
+                  padding: "20px",
+                  textAlign: "center" as const,
+                  backgroundColor: isDragging ? "#f0f0f0" : "#fafafa",
+                  marginBottom: "12px",
+                  cursor: "pointer",
+                  position: "relative" as const
+                }}
+                onClick={() => document.getElementById('fileInput')?.click()}
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Product
-              </Button>
-            </div>
-            
-            {/* Desktop Table */}
-            <div className="hidden lg:block">
-              <Card className="bg-white bg-opacity-90 backdrop-blur-sm border border-rose-200 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardContent className="p-0">
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-gradient-to-r from-rose-100 to-rose-200">
-                        <tr>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-rose-800 uppercase tracking-wider">Product</th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-rose-800 uppercase tracking-wider">Category</th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-rose-800 uppercase tracking-wider">Price</th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-rose-800 uppercase tracking-wider">Status</th>
-                          <th className="px-6 py-4 text-left text-xs font-semibold text-rose-800 uppercase tracking-wider">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-rose-100">
-                        {products.map((product) => (
-                          <tr key={product.id} className="hover:bg-rose-50 transition-colors duration-200">
-                            <td className="px-6 py-4 text-rose-900 font-medium">{product.title}</td>
-                            <td className="px-6 py-4 text-rose-700">{product.category}</td>
-                            <td className="px-6 py-4 text-rose-900 font-semibold font-playfair">{formatPrice(product.price)}</td>
-                            <td className="px-6 py-4">
-                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(product.status)}`}>
-                                {product.status}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="flex space-x-2">
-                                <Button size="sm" variant="outline" className="border-rose-300 text-rose-600 hover:bg-rose-50 hover:border-rose-400">
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                                <Button size="sm" variant="outline" className="border-rose-300 text-rose-600 hover:bg-rose-50 hover:border-rose-400">
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button size="sm" variant="outline" className="border-rose-300 text-rose-600 hover:bg-rose-100 hover:border-rose-400 hover:text-rose-800">
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                {newProduct.image ? (
+                  <div>
+                    <img 
+                      src={newProduct.image} 
+                      alt="Preview" 
+                      style={{ 
+                        maxWidth: "100%", 
+                        maxHeight: "150px", 
+                        borderRadius: "4px" 
+                      }} 
+                    />
+                    <p style={{ marginTop: "8px", fontSize: "12px", color: "#666" }}>
+                      Click or drag to replace
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Mobile Cards */}
-            <div className="lg:hidden space-y-4">
-              {products.map((product) => (
-                <Card key={product.id} className="bg-white bg-opacity-90 backdrop-blur-sm border border-rose-200 shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all duration-300 hover:shadow-rose-200">
-                  <CardContent className="p-4">
-                    <div className="flex flex-col space-y-3">
-                      <div className="flex justify-between items-start">
-                        <h3 className="font-semibold text-rose-900 text-sm">{product.title}</h3>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(product.status)}`}>
-                          {product.status}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-rose-700">{product.category}</span>
-                        <span className="text-rose-900 font-semibold font-playfair">{formatPrice(product.price)}</span>
-                      </div>
-                      <div className="flex justify-end space-x-2">
-                        <Button size="sm" variant="outline" className="border-rose-300 text-rose-600 hover:bg-rose-50">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="outline" className="border-rose-300 text-rose-600 hover:bg-rose-50">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="outline" className="border-rose-300 text-rose-600 hover:bg-rose-100">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* Add Product Modal */}
-            {showAddProduct && (
-              <div className="fixed inset-0 bg-rose-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                <div className="bg-white bg-opacity-95 backdrop-blur-sm border border-rose-200 rounded-lg shadow-2xl p-4 md:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-                  <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-lg md:text-xl font-bold text-rose-900 font-playfair">Add New Product</h3>
-                    <button 
-                      onClick={() => setShowAddProduct(false)}
-                      className="text-rose-600 hover:text-rose-800 text-xl md:text-2xl transition-colors"
-                    >
-                      ✕
-                    </button>
+                ) : (
+                  <div>
+                    <p style={{ margin: "0 0 8px 0", color: "#666" }}>
+                      Drag & drop an image here or click to select
+                    </p>
+                    <p style={{ margin: 0, fontSize: "12px", color: "#999" }}>
+                      PNG, JPG, GIF up to 10MB
+                    </p>
                   </div>
-                  
-                  <form className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-rose-800 mb-2">Product Title</label>
-                      <input 
-                        type="text" 
-                        className="w-full px-4 py-3 bg-rose-50 border border-rose-300 rounded-lg text-rose-900 focus:border-rose-500 focus:outline-none transition-all duration-300 focus:ring-2 focus:ring-rose-500 focus:ring-opacity-50"
-                        placeholder="Enter product title"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-rose-800 mb-2">Description</label>
-                      <textarea 
-                        className="w-full px-4 py-3 bg-rose-50 border border-rose-300 rounded-lg text-rose-900 focus:border-rose-500 focus:outline-none transition-all duration-300 focus:ring-2 focus:ring-rose-500 focus:ring-opacity-50 resize-none"
-                        rows={3}
-                        placeholder="Enter product description"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-rose-800 mb-2">Price (ALL)</label>
-                      <input 
-                        type="number" 
-                        className="w-full px-4 py-3 bg-rose-50 border border-rose-300 rounded-lg text-rose-900 focus:border-rose-500 focus:outline-none transition-all duration-300 focus:ring-2 focus:ring-rose-500 focus:ring-opacity-50"
-                        placeholder="0"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-rose-800 mb-2">Category</label>
-                      <select className="w-full px-4 py-3 bg-rose-50 border border-rose-300 rounded-lg text-rose-900 focus:border-rose-500 focus:outline-none transition-all duration-300 focus:ring-2 focus:ring-rose-500 focus:ring-opacity-50">
-                        <option value="">Select category</option>
-                        <option value="Buqeta">Buqeta</option>
-                        <option value="Dasma">Dasma</option>
-                        <option value="Ditëlindje">Ditëlindje</option>
-                        <option value="Orkide">Orkide</option>
-                      </select>
-                    </div>
-                    
-                    <div className="flex flex-col sm:flex-row gap-3 pt-6">
-                      <Button 
-                        type="button"
-                        className="flex-1 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-                        onClick={() => {
-                          alert('Product would be saved to database');
-                          setShowAddProduct(false);
-                        }}
-                      >
-                        Save Product
-                      </Button>
-                      <Button 
-                        type="button"
-                        variant="outline" 
-                        className="flex-1 border-rose-300 text-rose-600 hover:bg-rose-50 hover:border-rose-400"
-                        onClick={() => setShowAddProduct(false)}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </form>
-                </div>
+                )}
+                <input
+                  id="fileInput"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageSelect}
+                  style={{ display: "none" }}
+                />
               </div>
-            )}
+              
+              {/* Optional: URL input as alternative */}
+              <input
+                type="text"
+                value={newProduct.image.startsWith('data:') ? '' : newProduct.image}
+                onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
+                style={styles.input}
+                placeholder="Or enter image URL"
+              />
+            </div>
+            <div style={{ display: "flex", gap: "12px", marginTop: "20px" }}>
+              <button
+                onClick={handleAddProduct}
+                style={{ ...styles.addBtn, flex: 1, margin: 0 }}
+              >
+                Add
+              </button>
+              <button
+                onClick={() => setShowAddProduct(false)}
+                style={{ ...styles.logoutBtn, flex: 1 }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
-        )}
-
-        {activeTab === "orders" && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-white">Orders</h2>
-            <Card className="bg-gray-800 border-gray-700">
-              <CardContent>
-                <p className="text-gray-400">Order management functionality coming soon...</p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {activeTab === "customers" && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-white">Customers</h2>
-            <Card className="bg-gray-800 border-gray-700">
-              <CardContent>
-                <p className="text-gray-400">Customer management functionality coming soon...</p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </main>
+        </div>
+      )}
     </div>
   )
 }

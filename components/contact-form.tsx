@@ -47,11 +47,11 @@ ${formData.message}`
   }
 
   return (
-    <div className="bg-[#0f0f0f] border border-[#1a1a1a] rounded-lg p-6">
+    <div className="bg-white border border-[#e8d5d5] rounded-xl p-6 shadow-sm">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[#f5f5dc] mb-1 text-sm">
+            <label className="block text-[#6b4444] mb-1 text-sm font-medium">
               Emri i Plotë *
             </label>
             <input
@@ -59,11 +59,11 @@ ${formData.message}`
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-md text-[#f5f5dc] focus:outline-none focus:border-[#d4af37]"
+              className="w-full px-3 py-2 bg-white border border-[#e8d5d5] rounded-lg text-[#6b4444] placeholder:text-[#a67373] focus:outline-none focus:border-[#9d6b6b] focus:ring-1 focus:ring-[#9d6b6b] transition-colors"
             />
           </div>
           <div>
-            <label className="block text-[#f5f5dc] mb-1 text-sm">
+            <label className="block text-[#6b4444] mb-1 text-sm font-medium">
               Telefon *
             </label>
             <input
@@ -71,32 +71,32 @@ ${formData.message}`
               required
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-md text-[#f5f5dc] focus:outline-none focus:border-[#d4af37]"
+              className="w-full px-3 py-2 bg-white border border-[#e8d5d5] rounded-lg text-[#6b4444] placeholder:text-[#a67373] focus:outline-none focus:border-[#9d6b6b] focus:ring-1 focus:ring-[#9d6b6b] transition-colors"
               placeholder="+355 6X XXX XXXX"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-[#f5f5dc] mb-1 text-sm">
+          <label className="block text-[#6b4444] mb-1 text-sm font-medium">
             Email
           </label>
           <input
             type="email"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-md text-[#f5f5dc] focus:outline-none focus:border-[#d4af37]"
+            className="w-full px-3 py-2 bg-white border border-[#e8d5d5] rounded-lg text-[#6b4444] placeholder:text-[#a67373] focus:outline-none focus:border-[#9d6b6b] focus:ring-1 focus:ring-[#9d6b6b] transition-colors"
           />
         </div>
 
         <div>
-          <label className="block text-[#f5f5dc] mb-1 text-sm">
+          <label className="block text-[#6b4444] mb-1 text-sm font-medium">
             Subjekti
           </label>
           <select
             value={formData.subject}
             onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-            className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-md text-[#f5f5dc] focus:outline-none focus:border-[#d4af37]"
+            className="w-full px-3 py-2 bg-white border border-[#e8d5d5] rounded-lg text-[#6b4444] focus:outline-none focus:border-[#9d6b6b] focus:ring-1 focus:ring-[#9d6b6b] transition-colors"
           >
             <option value="">Zgjidhni një subjekt</option>
             <option value="Porosi">Porosi e Re</option>
@@ -108,7 +108,7 @@ ${formData.message}`
         </div>
 
         <div>
-          <label className="block text-[#f5f5dc] mb-1 text-sm">
+          <label className="block text-[#6b4444] mb-1 text-sm font-medium">
             Mesazhi *
           </label>
           <textarea
@@ -116,19 +116,18 @@ ${formData.message}`
             value={formData.message}
             onChange={(e) => setFormData({ ...formData, message: e.target.value })}
             rows={5}
-            className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-md text-[#f5f5dc] focus:outline-none focus:border-[#d4af37] resize-none"
+            className="w-full px-3 py-2 bg-white border border-[#e8d5d5] rounded-lg text-[#6b4444] placeholder:text-[#a67373] focus:outline-none focus:border-[#9d6b6b] focus:ring-1 focus:ring-[#9d6b6b] transition-colors resize-none"
             placeholder="Shkruani mesazhin tuaj këtu..."
           />
         </div>
 
-        <Button
+        <button
           type="submit"
-          variant="default"
-          className="w-full"
+          className="btn btn-primary w-full"
           disabled={isSubmitting}
         >
           {isSubmitting ? "Duke dërguar..." : "Dërgo Mesazhin"}
-        </Button>
+        </button>
       </form>
     </div>
   )

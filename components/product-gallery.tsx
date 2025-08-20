@@ -106,13 +106,13 @@ export function ProductGallery() {
   }, [selectedCategory, selectedPriceRange])
 
   return (
-    <section className="py-12 bg-[#0a0a0a] min-h-screen">
+    <section className="section">
       <div className="container">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-serif text-[#f5f5dc] mb-4">
+        <div className="section-header">
+          <h1 className="section-title">
             Koleksioni Ynë
           </h1>
-          <p className="text-lg text-[#f5f5dc]/70 max-w-2xl mx-auto">
+          <p className="section-subtitle">
             Zbuloni gjerësinë e plotë të krijimeve tona artistike
           </p>
         </div>
@@ -120,7 +120,7 @@ export function ProductGallery() {
         <div className="flex flex-col lg:flex-row gap-8">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="lg:hidden flex items-center justify-center gap-2 p-3 bg-[#1a1a1a] text-[#f5f5dc] rounded-md"
+            className="lg:hidden btn btn-secondary flex items-center gap-2"
           >
             {showFilters ? <X className="h-5 w-5" /> : <Filter className="h-5 w-5" />}
             {showFilters ? "Mbyll Filtrat" : "Shfaq Filtrat"}
@@ -131,17 +131,17 @@ export function ProductGallery() {
               showFilters ? "block" : "hidden lg:block"
             }`}
           >
-            <div className="card p-6">
-              <h3 className="text-lg font-serif text-[#f5f5dc] mb-4">Kategoritë</h3>
+            <div className="bg-white border border-[#e8d5d5] rounded-xl p-6 shadow-sm">
+              <h3 className="text-lg font-serif text-[#6b4444] mb-4">Kategoritë</h3>
               <div className="space-y-2">
                 {categories.map((category) => (
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                    className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                       selectedCategory === category.id
-                        ? "bg-[#d4af37] text-[#0a0a0a]"
-                        : "text-[#f5f5dc]/70 hover:bg-[#1a1a1a] hover:text-[#f5f5dc]"
+                        ? "bg-[#9d6b6b] text-white"
+                        : "text-[#8b5a5a] hover:bg-[#faf8f8] hover:text-[#6b4444]"
                     }`}
                   >
                     {category.name}
@@ -150,17 +150,17 @@ export function ProductGallery() {
               </div>
             </div>
 
-            <div className="card p-6">
-              <h3 className="text-lg font-serif text-[#f5f5dc] mb-4">Çmimi</h3>
+            <div className="bg-white border border-[#e8d5d5] rounded-xl p-6 shadow-sm">
+              <h3 className="text-lg font-serif text-[#6b4444] mb-4">Çmimi</h3>
               <div className="space-y-2">
                 {priceRanges.map((range) => (
                   <button
                     key={range.id}
                     onClick={() => setSelectedPriceRange(range.id)}
-                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                    className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                       selectedPriceRange === range.id
-                        ? "bg-[#d4af37] text-[#0a0a0a]"
-                        : "text-[#f5f5dc]/70 hover:bg-[#1a1a1a] hover:text-[#f5f5dc]"
+                        ? "bg-[#9d6b6b] text-white"
+                        : "text-[#8b5a5a] hover:bg-[#faf8f8] hover:text-[#6b4444]"
                     }`}
                   >
                     {range.label}
@@ -173,47 +173,44 @@ export function ProductGallery() {
           <div className="flex-1">
             {filteredProducts.length === 0 ? (
               <div className="text-center py-20">
-                <p className="text-[#f5f5dc]/60 text-lg">
+                <p className="text-[#8b5a5a] text-lg">
                   Nuk u gjetën produkte për këtë filtrim.
                 </p>
-                <Button
-                  variant="outline"
+                <button
                   onClick={() => {
                     setSelectedCategory("all")
                     setSelectedPriceRange("all")
                   }}
-                  className="mt-4"
+                  className="btn btn-primary mt-4"
                 >
                   Pastro Filtrat
-                </Button>
+                </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="product-grid">
                 {filteredProducts.map((product) => (
                   <Link
                     key={product.id}
                     href={`/products/${product.slug}`}
-                    className="group"
+                    className="product-card group"
                   >
-                    <div className="card overflow-hidden">
-                      <div className="aspect-[3/4] relative overflow-hidden bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] flex items-center justify-center">
-                        <div className="text-[#f5f5dc]/30 text-6xl">🌸</div>
-                      </div>
-                      <div className="p-6">
-                        <h3 className="text-xl font-serif text-[#f5f5dc] mb-2">
-                          {product.title}
-                        </h3>
-                        <p className="text-[#f5f5dc]/60 text-sm mb-4">
-                          {product.description}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[#d4af37] font-semibold text-lg">
-                            {formatPrice(product.price)}
-                          </span>
-                          <span className="text-[#f5f5dc]/40 text-sm">
-                            Shiko më shumë →
-                          </span>
-                        </div>
+                    <div className="product-image">
+                      <div className="text-6xl">🌸</div>
+                    </div>
+                    <div className="product-content">
+                      <h3 className="product-title">
+                        {product.title}
+                      </h3>
+                      <p className="product-description">
+                        {product.description}
+                      </p>
+                      <div className="product-footer">
+                        <span className="product-price">
+                          {formatPrice(product.price)}
+                        </span>
+                        <span className="text-[#a67373] text-sm group-hover:text-[#6b4444] transition-colors">
+                          Shiko më shumë →
+                        </span>
                       </div>
                     </div>
                   </Link>

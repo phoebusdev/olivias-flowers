@@ -49,7 +49,7 @@ export function Navigation() {
         </div>
 
         <button
-          className="md:hidden text-white"
+          className="md:hidden text-current"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -57,7 +57,7 @@ export function Navigation() {
       </div>
 
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-black/95 border-t border-gray-800">
+        <div className="md:hidden bg-white/95 border-t border-rose-200">
           <div className="container py-4">
             {navLinks.map((link) => (
               <Link
@@ -69,7 +69,7 @@ export function Navigation() {
                 {link.label}
               </Link>
             ))}
-            <div className="mt-4 pt-4 border-t border-gray-800">
+            <div className="mt-4 pt-4 border-t border-rose-200">
               <a href="tel:+355691234567" className="nav-link flex items-center gap-2 mb-4">
                 <Phone className="h-4 w-4" />
                 <span>+355 69 123 4567</span>

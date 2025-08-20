@@ -92,11 +92,13 @@ export default function RootLayout({
     <html lang="sq" className={cn(inter.variable, playfair.variable)}>
       <body
         className={cn(
-          "min-h-screen bg-[#0a0a0a] text-[#fafafa] font-sans antialiased",
+          "min-h-screen bg-[#f5f0f0] text-[#6b4444] font-sans antialiased",
           inter.className
         )}
       >
         <AuthProvider>
+          <div className="parallax-bg"></div>
+          <div className="floating-petals"></div>
           {children}
         </AuthProvider>
         <StructuredData />
