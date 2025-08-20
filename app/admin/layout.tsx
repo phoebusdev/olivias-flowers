@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { ReactNode } from "react"
 
 interface AdminLayoutProps {
@@ -11,8 +11,17 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const router = useRouter()
+  const pathname = usePathname()
+
+  // Don't apply authentication check to login page
+  const isLoginPage = pathname === '/admin/login'
 
   useEffect(() => {
+    if (isLoginPage) {
+      setIsAuthenticated(true) // Allow login page to render
+      return
+    }
+
     // Check if user is authenticated (simple session storage check)
     const isLoggedIn = sessionStorage.getItem('admin-authenticated') === 'true'
     setIsAuthenticated(isLoggedIn)
@@ -20,9 +29,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     if (!isLoggedIn) {
       router.push('/admin/login')
     }
-  }, [router])
+  }, [router, isLoginPage])
 
-  if (isAuthenticated === null) {
+  if (isAuthenticated === null && !isLoginPage) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="text-white">Loading...</div>
@@ -30,7 +39,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     )
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !isLoginPage) {
     return null // Will redirect to login
   }
 
